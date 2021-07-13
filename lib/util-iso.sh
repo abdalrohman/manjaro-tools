@@ -354,6 +354,14 @@ make_image_desktop() {
 
         chroot_create "${path}" "${packages}"
 
+        msg "Prepare local pkgs installation from ${profile_dir}/local-pkgs"
+        if [ -d "${profile_dir}/local-pkgs" ]; then
+            unshare --fork --pid pacman -r "${path}" -U --noconfirm ${profile_dir}/local-pkgs/*
+            msg "Done installation of local pkgs"
+        else
+            msg "Not found  ${profile_dir}/local-pkgs"
+        fi
+
         pacman -Qr "${path}" > "${path}/desktopfs-pkgs.txt"
         cp "${path}/desktopfs-pkgs.txt" ${iso_dir}/$(gen_iso_fn)-pkgs.txt
         [[ -e ${profile_dir}/desktop-overlay ]] && copy_overlay "${profile_dir}/desktop-overlay" "${path}"
